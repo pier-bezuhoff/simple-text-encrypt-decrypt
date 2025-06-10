@@ -1,6 +1,6 @@
 # Simple text encryption website
-- You input password & text -> you get encrypted package (salt, IV, ciphertext)
-- You input password & encrypted package -> you get back original text
+- You input password & text -> get encrypted package (salt, IV, ciphertext)
+- You input password & encrypted package -> get back original text
 - Unicode support (utf-8)
 - Integrity detection/authenticated encryption
 - Relies on [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto)
