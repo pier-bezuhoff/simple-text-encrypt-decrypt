@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Text Encryption</title>
+        <meta name="description" content="Encrypt/decrypt plain text using GCM-AES with a key derived from the password using PBKDF2">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <main>
+            <div class="main-column">
+                <div class="password-row">
+                    <div class="password-column">
+                        <label for="password">Password</label>
+                        <input type="text" id="password-input" name="password" required size="20"/>
+                    </div>
+                </div>
+                <div class="main-row">
+                    <div class="encrypt column">
+                        <button id="encrypt-button" type="button">Encrypt</button>
+                        <textarea id="plain-text" placeholder="Type plain text to be encrypted here..."></textarea>
+                    </div>
+                    <div class="decrypt column">
+                        <button id="decrypt-button" type="button">Decrypt</button>
+                        <textarea id="cipher-text" placeholder="Paste ciphertext to be decrypted here..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="script.js"></script>
+    </body>
+</html>
