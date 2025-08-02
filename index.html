@@ -6,6 +6,7 @@
         <title>Text Encryption</title>
         <meta name="description" content="Encrypt/decrypt plain text using GCM-AES with a key derived from the password using PBKDF2">
         <link rel="stylesheet" href="styles.css">
+        <script type="module" src="main.js"></script>
     </head>
     <body>
         <main>
@@ -16,7 +17,7 @@
                 <div class="password-row">
                     <div class="password-column">
                         <label for="password-input">Password</label>
-                        <input type="text" id="password-input" name="password" required size="20"/>
+                        <input id="password-input" type="text" name="password" required size="20"/>
                     </div>
                 </div>
                 <div class="main-row">
@@ -31,6 +32,5 @@
                 </div>
             </div>
         </main>
-        <script src="script.js"></script>
     </body>
 </html>

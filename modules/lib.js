@@ -1,3 +1,12 @@
+export {
+    encryptWithPassword,
+    decryptWithPassword,
+    packEncryptedData,
+    parseEncryptedPackage,
+    packEncryptedDataToBytes,
+    parseEncryptedBytes,
+};
+
 function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
     const CHUNK = 0x8000;
@@ -27,15 +36,15 @@ const SALT_OFFSET = 0;
 const IV_OFFSET = SALT_LENGTH;
 const CIPHERTEXT_OFFSET = IV_OFFSET + IV_LENGTH;
 
-// passphrase and plaintext can be any UTF-8
+// password can be any UTF-8, bytes is Uint8Array (use new TextEncoder().encode(<unicode text>))
 // -> encryptedData = { salt, iv, ciphertext: Uint8Array }
-async function encryptWithPassword(passphrase, plaintext) {
+async function encryptWithPassword(password, bytes) {
     const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
     const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
     // Derive key
     const baseKey = await crypto.subtle.importKey(
         "raw",
-        new TextEncoder().encode(passphrase),
+        new TextEncoder().encode(password),
         "PBKDF2",
         false,
         ["deriveKey"]
@@ -56,7 +65,7 @@ async function encryptWithPassword(passphrase, plaintext) {
     const ciphertext = await crypto.subtle.encrypt(
         { name: "AES-GCM", iv },
         key,
-        new TextEncoder().encode(plaintext) // Unicode -> UTF-8 bytes
+        bytes
     );
     return {
         salt: salt,
@@ -67,14 +76,15 @@ async function encryptWithPassword(passphrase, plaintext) {
 
 // encryptedData is supposed to be the same format as encryptWithPassword output:
 // encryptedData = { salt, iv, ciphertext: Uint8Array }
-async function decryptWithPassword(passphrase, encryptedData) {
+// returns bytes: Uint8Array (decode with new TextDecoder().decode(bytes))
+async function decryptWithPassword(password, encryptedData) {
     const salt = encryptedData.salt;
     const iv = encryptedData.iv;
     const ciphertext = encryptedData.ciphertext;
     // Derive key
     const baseKey = await crypto.subtle.importKey(
         "raw",
-        new TextEncoder().encode(passphrase),
+        new TextEncoder().encode(password),
         "PBKDF2",
         false,
         ["deriveKey"]
@@ -97,17 +107,17 @@ async function decryptWithPassword(passphrase, encryptedData) {
         key,
         ciphertext
     );
-    return new TextDecoder().decode(decrypted); // UTF-8 bytes -> Unicode
+    return decrypted;
 }
 
 // -> encryptedPackage: base64 string
 function packEncryptedData(encryptedData) {
     const { salt, iv, ciphertext } = encryptedData;
-    const package = new Uint8Array(salt.length + iv.length + ciphertext.length);
-    package.set(salt, SALT_OFFSET);
-    package.set(iv, IV_OFFSET);
-    package.set(ciphertext, CIPHERTEXT_OFFSET);
-    return arrayBufferToBase64(package.buffer);
+    const pkg = new Uint8Array(salt.length + iv.length + ciphertext.length);
+    pkg.set(salt, SALT_OFFSET);
+    pkg.set(iv, IV_OFFSET);
+    pkg.set(ciphertext, CIPHERTEXT_OFFSET);
+    return arrayBufferToBase64(pkg.buffer);
 }
 
 // -> encryptedData = { salt, iv, ciphertext: Uint8Array }
@@ -123,38 +133,22 @@ function parseEncryptedPackage(encryptedPackage) {
     };
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    const passwordInput = document.getElementById("password-input");
-    const encryptButton = document.getElementById("encrypt-button");
-    const decryptButton = document.getElementById("decrypt-button");
-    const plainText = document.getElementById("plain-text");
-    const cipherText = document.getElementById("cipher-text");
-    encryptButton.addEventListener("click", function () {
-        const password = passwordInput.value;
-        const text = plainText.value;
-        cipherText.value = "encrypting...";
-        encryptWithPassword(password, text)
-            .then((encryptedData) => {
-                cipherText.value = packEncryptedData(encryptedData);
-            })
-            .catch((e) => {
-                console.error(e);
-                cipherText.value = "Failed to encrypt: " + e;
-            });
-    });
-    decryptButton.addEventListener("click", function () {
-        const password = passwordInput.value;
-        const ciphertext = cipherText.value;
-        plainText.value = "decrypting...";
-        const encryptedData = parseEncryptedPackage(ciphertext);
-        decryptWithPassword(password, encryptedData)
-            .then((decryptedText) => {
-                plainText.value = decryptedText;
-            })
-            .catch((e) => {
-                console.error(e);
-                plainText.value =
-                    "Failed to decrypt: incorrect password or corrupted ciphertext!";
-            });
-    });
-});
+function packEncryptedDataToBytes(encryptedData) {
+    const { salt, iv, ciphertext } = encryptedData;
+    const pkg = new Uint8Array(salt.length + iv.length + ciphertext.length);
+    pkg.set(salt, SALT_OFFSET);
+    pkg.set(iv, IV_OFFSET);
+    pkg.set(ciphertext, CIPHERTEXT_OFFSET);
+    return pkg;
+}
+
+function parseEncryptedBytes(packageBytes) {
+    const salt = packageBytes.slice(SALT_OFFSET, IV_OFFSET);
+    const iv = packageBytes.slice(IV_OFFSET, CIPHERTEXT_OFFSET);
+    const ciphertext = packageBytes.slice(CIPHERTEXT_OFFSET);
+    return {
+        salt: salt,
+        iv: iv,
+        ciphertext: ciphertext,
+    };
+}
