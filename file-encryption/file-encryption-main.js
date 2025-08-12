@@ -170,15 +170,16 @@ function onNewEncryptedFile(file) {
             const password = passwordInput.value;
             return decryptWithPassword(password, encryptedData);
         })
-        .then((decryptedBytes) => {
+        .then((decryptedBuffer) => {
+            const decryptedBytes = new Uint8Array(decryptedBuffer);
             const mimeType = decodeStringFromBytes(
                 decryptedBytes.slice(MIME_TYPE_OFFSET, FILENAME_OFFSET),
                 PAD_BYTE
-            ).trim();
+            );
             const filename = decodeStringFromBytes(
                 decryptedBytes.slice(FILENAME_OFFSET, CONTENT_OFFSET),
                 PAD_BYTE
-            ).trim();
+            );
             const contentBytes = decryptedBytes.slice(CONTENT_OFFSET);
             // NOTE: mime type CAN alter original file extension (e.g. jpeg->jpg)
             const blob = new Blob([contentBytes], {
@@ -199,7 +200,7 @@ function onNewEncryptedFile(file) {
                 "New file has been decrypted. See the download link";
         })
         .catch((e) => {
-            console.log("Decryption error: " + e);
+            console.log(`Decryption error: "${e}"`);
             status.innerText = "File decryption failed (incorrect password?)";
         });
 }

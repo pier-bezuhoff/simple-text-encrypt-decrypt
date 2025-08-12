@@ -36,7 +36,8 @@ const SALT_OFFSET = 0;
 const IV_OFFSET = SALT_LENGTH;
 const CIPHERTEXT_OFFSET = IV_OFFSET + IV_LENGTH;
 
-// password can be any UTF-8, bytes is Uint8Array (use new TextEncoder().encode(<unicode text>))
+// password can be any UTF-8,
+// bytes is ArrayBuffer or Uint8Array (use new TextEncoder().encode(<unicode text>))
 // -> encryptedData = { salt, iv, ciphertext: Uint8Array }
 async function encryptWithPassword(password, bytes) {
     const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
@@ -76,7 +77,7 @@ async function encryptWithPassword(password, bytes) {
 
 // encryptedData is supposed to be the same format as encryptWithPassword output:
 // encryptedData = { salt, iv, ciphertext: Uint8Array }
-// returns bytes: Uint8Array (decode with new TextDecoder().decode(bytes))
+// returns buffer: ArrayBuffer (decode with new TextDecoder().decode(buffer))
 async function decryptWithPassword(password, encryptedData) {
     const salt = encryptedData.salt;
     const iv = encryptedData.iv;
@@ -110,7 +111,7 @@ async function decryptWithPassword(password, encryptedData) {
     return decrypted;
 }
 
-// -> encryptedPackage: base64 string
+// { salt, iv, ciphertext: Uint8Array } -> encryptedPackage: base64 string
 function packEncryptedData(encryptedData) {
     const { salt, iv, ciphertext } = encryptedData;
     const pkg = new Uint8Array(salt.length + iv.length + ciphertext.length);
@@ -120,7 +121,7 @@ function packEncryptedData(encryptedData) {
     return arrayBufferToBase64(pkg.buffer);
 }
 
-// -> encryptedData = { salt, iv, ciphertext: Uint8Array }
+// base64 string -> encryptedData = { salt, iv, ciphertext: Uint8Array }
 function parseEncryptedPackage(encryptedPackage) {
     const packageBytes = new Uint8Array(base64ToArrayBuffer(encryptedPackage));
     const salt = packageBytes.slice(SALT_OFFSET, IV_OFFSET);
@@ -133,6 +134,7 @@ function parseEncryptedPackage(encryptedPackage) {
     };
 }
 
+// { salt, iv, ciphertext: Uint8Array } -> encryptedPackageBytes: Uint8Array
 function packEncryptedDataToBytes(encryptedData) {
     const { salt, iv, ciphertext } = encryptedData;
     const pkg = new Uint8Array(salt.length + iv.length + ciphertext.length);
@@ -142,6 +144,7 @@ function packEncryptedDataToBytes(encryptedData) {
     return pkg;
 }
 
+// encryptedPackageBytes: Uint8Array -> encryptedData = { salt, iv, ciphertext: Uint8Array }
 function parseEncryptedBytes(packageBytes) {
     const salt = packageBytes.slice(SALT_OFFSET, IV_OFFSET);
     const iv = packageBytes.slice(IV_OFFSET, CIPHERTEXT_OFFSET);
