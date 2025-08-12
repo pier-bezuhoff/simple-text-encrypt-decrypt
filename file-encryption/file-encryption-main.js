@@ -100,6 +100,7 @@ const encryptedFileInputLabel = document.getElementById(
     "encrypted-file-input-label"
 );
 const encryptedFileLink = document.getElementById("encrypted-file-link");
+const status = document.getElementById("status");
 
 function onNewPlainFile(file) {
     console.log("new plain file: " + file2string(file));
@@ -107,13 +108,13 @@ function onNewPlainFile(file) {
         encryptedFileLink.style.display = "none";
         URL.revokeObjectURL(encryptedFileLink.href);
     }
+    status.innerText = "Encrypting new file...";
     plainFileInputLabel.textContent = `Select file: "${
         file.name
     }" | ${formatFileSize(file.size)}`;
     addFilePreview(file, previewRoot);
     file.arrayBuffer()
         .then((buffer) => {
-            const encoder = new TextEncoder();
             const mimeTypeBytes = fitStringIntoBytes(
                 file.type,
                 MAX_MIME_TYPE_BYTESIZE,
@@ -145,6 +146,8 @@ function onNewPlainFile(file) {
             encryptedFileLink.style.display = "block";
             plainFileLink.style.display = "none";
             console.log("prepared encrypted download link");
+            status.innerText =
+                "New file has been encrypted. See the download link";
         });
 }
 
@@ -154,6 +157,8 @@ function onNewEncryptedFile(file) {
         plainFileLink.style.display = "none";
         URL.revokeObjectURL(plainFileLink.href);
     }
+    status.innerText = "Decrypting new file...";
+    document.querySelectorAll(".image-preview").forEach((e) => e.remove());
     encryptedFileInputLabel.textContent = `Select encrypted file: "${
         file.name
     }" | ${formatFileSize(file.size)}`;
@@ -169,11 +174,11 @@ function onNewEncryptedFile(file) {
             const mimeType = decodeStringFromBytes(
                 decryptedBytes.slice(MIME_TYPE_OFFSET, FILENAME_OFFSET),
                 PAD_BYTE
-            );
+            ).trim();
             const filename = decodeStringFromBytes(
                 decryptedBytes.slice(FILENAME_OFFSET, CONTENT_OFFSET),
                 PAD_BYTE
-            );
+            ).trim();
             const contentBytes = decryptedBytes.slice(CONTENT_OFFSET);
             // NOTE: mime type CAN alter original file extension (e.g. jpeg->jpg)
             const blob = new Blob([contentBytes], {
@@ -187,16 +192,30 @@ function onNewEncryptedFile(file) {
             const file = new File([blob], filename, { type: blob.type });
             addFilePreview(file, previewRoot);
             encryptedFileLink.style.display = "none";
-            console.log("prepared decrypted download link");
+            console.log(
+                `prepared decrypted download link (filename = ${filename}, mimeType = ${mimeType})`
+            );
+            status.innerText =
+                "New file has been decrypted. See the download link";
+        })
+        .catch((e) => {
+            console.log("Decryption error: " + e);
+            status.innerText = "File decryption failed (incorrect password?)";
         });
 }
 
 encryptButton.addEventListener("click", function () {
-    onNewPlainFile(plainFileInput.files[0]);
+    const file = plainFileInput.files[0];
+    if (file) {
+        onNewPlainFile(file);
+    }
 });
 
 decryptButton.addEventListener("click", function () {
-    onNewEncryptedFile(encryptedFileInput.files[0]);
+    const file = encryptedFileInput.files[0];
+    if (file) {
+        onNewEncryptedFile(file);
+    }
 });
 
 plainFile.addEventListener(

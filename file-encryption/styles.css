@@ -17,18 +17,20 @@ input.visually-hidden:is(:focus, :focus-within) + label {
     box-sizing: border-box;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .main-grid {
     width: 100%;
     height: 95vh;
     padding: 12px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 6rem 4rem 3fr 1fr;
-    gap: 1rem 1rem;
+    grid-template-rows: 6rem 4rem 3fr 1fr 4rem;
+    gap: 1rem 2rem;
     justify-items: center;
-}
-
-.grid-item {
 }
 
 .password-row {
@@ -41,8 +43,9 @@ input.visually-hidden:is(:focus, :focus-within) + label {
 }
 
 .preview-container {
-    width: 600px;
-    height: 400px;
+    min-width: 500px;
+    min-height: 300px;
+    height: 100%;
     position: relative;
     background-color: hsl(150 50% 60% / 0.1);
 }
@@ -91,4 +94,8 @@ input.visually-hidden:is(:focus, :focus-within) + label {
 
 a.download-link {
     display: none;
+}
+
+.status-wrap {
+    grid-column: 1 / span 2;
 }
