@@ -103,13 +103,16 @@ const encryptedFileLink = document.getElementById("encrypted-file-link");
 
 function onNewPlainFile(file) {
     console.log("new plain file: " + file2string(file));
+    if (encryptedFileLink.style.display === "block") {
+        encryptedFileLink.style.display = "none";
+        URL.revokeObjectURL(encryptedFileLink.href);
+    }
     plainFileInputLabel.textContent = `Select file: "${
         file.name
     }" | ${formatFileSize(file.size)}`;
     addFilePreview(file, previewRoot);
     file.arrayBuffer()
         .then((buffer) => {
-            // add filename
             const encoder = new TextEncoder();
             const mimeTypeBytes = fitStringIntoBytes(
                 file.type,
@@ -141,13 +144,16 @@ function onNewPlainFile(file) {
             encryptedFileLink.download = DEFAULT_FILENAME;
             encryptedFileLink.style.display = "block";
             plainFileLink.style.display = "none";
-            // URL.revokeObjectURL(url)
             console.log("prepared encrypted download link");
         });
 }
 
 function onNewEncryptedFile(file) {
     console.log("new encrypted file: " + file2string(file));
+    if (plainFileLink.style.display === "block") {
+        plainFileLink.style.display = "none";
+        URL.revokeObjectURL(plainFileLink.href);
+    }
     encryptedFileInputLabel.textContent = `Select encrypted file: "${
         file.name
     }" | ${formatFileSize(file.size)}`;
@@ -169,6 +175,7 @@ function onNewEncryptedFile(file) {
                 PAD_BYTE
             );
             const contentBytes = decryptedBytes.slice(CONTENT_OFFSET);
+            // NOTE: mime type CAN alter original file extension (e.g. jpeg->jpg)
             const blob = new Blob([contentBytes], {
                 type: mimeType,
                 // type: "application/octet-stream",
@@ -177,7 +184,6 @@ function onNewEncryptedFile(file) {
             plainFileLink.href = url;
             plainFileLink.download = filename;
             plainFileLink.style.display = "block";
-            // URL.revokeObjectURL(url)
             const file = new File([blob], filename, { type: blob.type });
             addFilePreview(file, previewRoot);
             encryptedFileLink.style.display = "none";

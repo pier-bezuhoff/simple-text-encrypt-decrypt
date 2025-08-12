@@ -28,6 +28,7 @@
     color: var(--text-color);
     background-color: var(--bg-color);
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 .main-column {

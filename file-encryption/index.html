@@ -1,56 +1,60 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>File Encryption</title>
-        <meta name="description" content="Encrypt/decrypt arbitrary files using GCM-AES with a key derived from the password using PBKDF2">
-        <link rel="stylesheet" href="../styles.css">
-        <link rel="stylesheet" href="styles.css">
-        <script type="module" src="file-encryption-main.js"></script>
-    </head>
-    <body>
-        <main>
-            <div class="github-link-wrap">
-                <a href="https://github.com/pier-bezuhoff/simple-text-encrypt-decrypt" target="_blank" rel="noopener noreferrer" data-icon="github" aria-label="GitHub Repo" class="github-link"></a>
-            </div>
-            <div class="main-column">
-                <div class="password-row">
-                    <div class="password-column">
-                        <label for="password-input">Password</label>
-                        <input id="password-input" type="text" name="password" required size="20"/>
-                    </div>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>File Encryption</title>
+    <meta name="description" content="Encrypt/decrypt arbitrary files using GCM-AES with a key derived from the password using PBKDF2">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="file-encryption-main.js"></script>
+</head>
+<body>
+    <div class="github-link-wrap">
+        <a href="https://github.com/pier-bezuhoff/simple-text-encrypt-decrypt" target="_blank" rel="noopener noreferrer" data-icon="github" aria-label="GitHub Repo" class="github-link"></a>
+    </div>
+    <main>
+        <div class="main-grid">
+            <div class="grid-item password-row">
+                <div class="password-column">
+                    <label for="password-input">Password</label>
+                    <input id="password-input" type="text" name="password" required size="20"/>
                 </div>
-                <div class="main-row">
-                    <div class="encrypt column">
-                        <button id="encrypt-button" type="button">Encrypt</button>
-                        <div id="plain-file" class="preview-container">
-                            <!-- file input | drag-and-drop area | decrypted output link | image preview -->
-                            <div id="plain-file-preview" class="preview"></div>
-                            <div class="drag-and-drop-area">
-                                <p class="drag-and-drop-hint">Drag &amp; drop</p>
-                                <p class="drag-and-drop-hint">or</p>
-                                <input id="plain-file-input" class="visually-hidden" type="file"/>
-                                <label id="plain-file-input-label" for="plain-file-input" class="select-file-label">Select file</label>
-                                <a id="plain-file-link" class="download-link">Download</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="decrypt column">
-                        <button id="decrypt-button" type="button">Decrypt</button>
-                        <div id="encrypted-file" class="preview-container">
-                            <div class="drag-and-drop-area">
-                                <!-- file input | drag-and-drop area | encrypted output link -->
-                                <p class="drag-and-drop-hint">Drag &amp; drop</p>
-                                <p class="drag-and-drop-hint">or</p>
-                                <input id="encrypted-file-input" class="visually-hidden" type="file"/>
-                                <label id="encrypted-file-input-label" for="encrypted-file-input" class="select-file-label">Select encrypted file</label>
-                                <a id="encrypted-file-link" class="download-link">Download</a>
-                            </div>
-                        </div>
+            </div>
+            <div class="grid-item">
+                <button id="encrypt-button" type="button">Encrypt</button>
+            </div>
+            <div class="grid-item">
+                <button id="decrypt-button" type="button">Decrypt</button>
+            </div>
+            <div class="grid-item">
+                <div id="plain-file" class="preview-container">
+                    <div id="plain-file-preview" class="preview"></div>
+                    <div class="drag-and-drop-area">
+                        <p class="drag-and-drop-hint unselectable">Drag &amp; drop</p>
+                        <p class="drag-and-drop-hint unselectable">or</p>
+                        <input id="plain-file-input" class="visually-hidden" type="file"/>
+                        <label id="plain-file-input-label" for="plain-file-input" class="select-file-label unselectable">Select file</label>
                     </div>
                 </div>
             </div>
-        </main>
-    </body>
+            <div class="grid-item">
+                <div id="encrypted-file" class="preview-container">
+                    <div class="drag-and-drop-area">
+                        <p class="drag-and-drop-hint unselectable">Drag &amp; drop</p>
+                        <p class="drag-and-drop-hint unselectable">or</p>
+                        <input id="encrypted-file-input" class="visually-hidden" type="file"/>
+                        <label id="encrypted-file-input-label" for="encrypted-file-input" class="select-file-label unselectable">Select encrypted file</label>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <a id="plain-file-link" class="download-link">Download decrypted file</a>
+            </div>
+            <div class="grid-item">
+                <a id="encrypted-file-link" class="download-link">Download encrypted file</a>
+            </div>
+        </div>
+    </main>
+</body>
 </html>
